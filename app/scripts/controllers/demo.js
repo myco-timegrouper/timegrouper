@@ -17,8 +17,8 @@ angular.module('timegrouperApp')
                 var data = d3.csv.parseRows(text).map(function(row, i) {
                     return row.map(function(value, j) {
                         return {
-                            x: i,
-                            y: j,
+                            x: j,
+                            y: i,
                             z: +value
                         };
                     });
