@@ -71,20 +71,20 @@ angular.module('timegrouperApp')
 
                     var x = d3.scale.ordinal().rangeBands([0, width]),
                         z = d3.scale.linear().domain([0, 4]).clamp(true),
-                        color = d3.scale.linear().range(['red',  'green']);
+                        color = d3.scale.linear().range(['red', 'green']);
 
                     var max = d3.max(simMat, function(d) {
-                        	return d3.max(d, function(h) {
-                        		return h.z;
-                        	});
+                        return d3.max(d, function(h) {
+                            return h.z;
                         });
+                    });
 
                     var min = d3.min(simMat, function(d) {
-                        	return d3.min(d, function(h) {
-                        		return h.z;
-                        	});
+                        return d3.min(d, function(h) {
+                            return h.z;
                         });
-                    
+                    });
+
                     color.domain([min, max]);
 
                     var svg = d3.select(element[0]).append("svg")
@@ -136,9 +136,9 @@ angular.module('timegrouperApp')
 
                     row.append("text")
                         .attr("x", -6)
-                        .attr("y", x.rangeBand() )
+                        .attr("y", x.rangeBand())
                         .attr("dy", ".01em")
-                        .classed('patchtext',true)
+                        .classed('patchtext', true)
                         .attr("text-anchor", "end")
                         .text(function(d, i) {
                             return nodes[i].name;
@@ -157,9 +157,9 @@ angular.module('timegrouperApp')
 
                     column.append("text")
                         .attr("x", 6)
-                        .attr("y", x.rangeBand() )
+                        .attr("y", x.rangeBand())
                         .attr("dy", ".01em")
-                        .classed('patchtext',true)
+                        .classed('patchtext', true)
                         .attr("text-anchor", "start")
                         .text(function(d, i) {
                             return nodes[i].name;
@@ -167,9 +167,10 @@ angular.module('timegrouperApp')
 
                     function row(row) {
                         var cell = d3.select(this).selectAll(".cell")
-                            .data(row.filter(function(d) {
-                                return d.z;
-                            }))
+                            // .data(row.filter(function(d) {
+                            //     return d.z;
+                            // }))
+                            .data(row)
                             .enter().append("rect")
                             .attr("class", "cell")
                             .attr("x", function(d) {
@@ -247,5 +248,3 @@ angular.module('timegrouperApp')
             }
         };
     });
-
-

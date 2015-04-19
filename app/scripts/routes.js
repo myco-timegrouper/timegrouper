@@ -74,6 +74,10 @@ angular.module('timegrouperApp')
             templateUrl: 'views/demo.html',
             controller: 'DemoCtrl'
         })
+        .when('/demo2', {
+            templateUrl: 'views/demo.html',
+            controller: 'Demo2Ctrl'
+        })
         .whenAuthenticated('/account', {
             templateUrl: 'views/account.html',
             controller: 'AccountCtrl'
