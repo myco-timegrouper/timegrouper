@@ -35,6 +35,7 @@ module.exports = function(config) {
       'bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js',
       'bower_components/angular-loading-bar/build/loading-bar.js',
       'bower_components/crossfilter/crossfilter.js',
+      'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'bower_components/mockfirebase/browser/mockfirebase.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower

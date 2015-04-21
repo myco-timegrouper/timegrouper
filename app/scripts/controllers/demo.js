@@ -10,6 +10,9 @@
 angular.module('timegrouperApp')
     .controller('DemoCtrl', function($scope) {
 
+        $scope.loading = 1;
+        $scope.maxLoading = 100;
+
 
         var loadData = function() {
 
@@ -51,6 +54,8 @@ angular.module('timegrouperApp')
 
         var loadTimeSeriesData = function() {
 
+            $scope.isLoading = true;
+
             d3.csv("data/hazard_alg.csv", function(data) {
                 //do stuff with data
                 // console.log(data);
@@ -60,7 +65,9 @@ angular.module('timegrouperApp')
                     'values': []
                 };
 
-                data.forEach(function(d) {
+                $scope.maxLoading = data.length;
+
+                data.forEach(function(d,i) {
 
                     if (tempObject.key != d.a_id) {
 
@@ -72,14 +79,28 @@ angular.module('timegrouperApp')
                         };
 
                         tempObject.key = d.a_id;
+                        // $scope.loading = i;
+                        // $scope.$apply();
 
                     }
+
+                    // if (i%100000 === 0) {
+
+
+                    // $scope.loading = Math.floor(i/100000);
+                    // $scope.$apply();
+                    // console.log($scope.loading + '/' + $scope.maxLoading);
+                    // }
+
 
 
                     tempObject.values.push([+d.a_date, +d.a_hazard]);
 
 
                 })
+
+                $scope.isLoading = false;
+                $scope.$apply();
 
             }).on("progress", function(event) {
                 //update progress bar
@@ -88,6 +109,8 @@ angular.module('timegrouperApp')
                     console.log(percentComplete);
                 }
             });
+
+
         };
 
 

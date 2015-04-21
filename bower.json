@@ -16,7 +16,8 @@
     "nvd3": "~1.1.15-beta",
     "angularjs-nvd3-directives": "~0.0.7",
     "angular-loading-bar": "~0.7.1",
-    "crossfilter": "~1.3.11"
+    "crossfilter": "~1.3.11",
+    "angular-bootstrap": "~0.12.1"
   },
   "devDependencies": {
     "mockfirebase": "0.11.0",
@@ -26,7 +27,7 @@
   "moduleName": "timegrouperApp",
   "resolutions": {
     "d3": "~3.5.5",
-    "angular": "^1.3.0",
-    "nvd3": "~1.7.1"
+    "angular": "1.3.x || 1.4.x",
+    "nvd3": "~1.1.15-beta"
   }
 }

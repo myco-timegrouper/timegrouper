@@ -1,4 +1,8 @@
 <h2>TimeGrouper</h2>
+<div ng-show='isLoading'>
+Loading  {{loading}} / {{maxLoading}}
+<progressbar value='loading' max='15'> </progressbar>
+</div>
 
   <label>Select Similarity Metric:
     <select ng-model="myorder" ng-options="order for order in orders">
@@ -10,7 +14,6 @@
     </select>
   </label>
 
-{{selectedNames}}
 <div similaritymatrix class="overview" similarity="simMatrix" orderlist="orderList" selectednames="selectedNames" myorder='myorder'></div>
 
 
