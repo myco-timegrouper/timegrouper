@@ -94,7 +94,7 @@ angular.module('timegrouperApp')
 
 
 
-                    tempObject.values.push([+d.a_date, +d.a_hazard]);
+                    tempObject.values.push({x:+d.a_date, y:+d.a_hazard});
 
 
                 })
@@ -113,14 +113,51 @@ angular.module('timegrouperApp')
 
         };
 
+        $scope.lineOptions = {
+            chart: {
+                type: 'lineWithFocusChart',
+                height: 450,
+                margin : {
+                    top: 20,
+                    right: 20,
+                    bottom: 60,
+                    left: 40
+                },
+                transitionDuration: 500,
+                xAxis: {
+                    axisLabel: 'Date since deployed',
+                    tickFormat: function(d){
+                        return d3.format(',f')(d);
+                    }
+                },
+                x2Axis: {
+                    tickFormat: function(d){
+                        return d3.format(',f')(d);
+                    }
+                },
+                yAxis: {
+                    axisLabel: 'Patch Rate',
+                    tickFormat: function(d){
+                        return d3.format(',.2f')(d);
+                    },
+                    rotateYLabel: false
+                },
+                y2Axis: {
+                    tickFormat: function(d){
+                        return d3.format(',.2f')(d);
+                    }
+                }
 
-        $scope.exampleData = [];
+            }
+        };
+
+
+        $scope.lineData = [];
 
         $scope.$watch(function() {
             return $scope.selectedNames;
         }, function(newVals, oldVals) {
 
-            console.log(parsedData);
             var temp = [];
 
             for (var i =0; i<parsedData.length; i++) {
@@ -129,7 +166,10 @@ angular.module('timegrouperApp')
                 } 
             }
 
-            $scope.exampleData = temp;
+
+            console.log(temp);
+
+            $scope.lineData = temp;
 
         }, true);
 
