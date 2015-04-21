@@ -1,3 +1,25 @@
+.selecting {
+  fill-opacity: .5;
+}
+
+.selecting .selected {
+  stroke: #f00;
+  stroke-width: 2px;
+}
+
+.selected {
+  fill-opacity:1;
+  stroke: #f00;
+  stroke-width: 2px;
+
+}
+
+.brush .extent {
+  stroke: #000;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
 .patchtext {
   font-size: 10px
 }

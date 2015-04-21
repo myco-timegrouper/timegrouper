@@ -13,6 +13,8 @@ angular.module('timegrouperApp')
             scope: {
                 similarity: "=",
                 orderlist: "=",
+                selectednames: '=',
+                myorder: "=",
             },
 
             link: function postLink(scope, element, attrs) {
@@ -46,6 +48,19 @@ angular.module('timegrouperApp')
 
                 }, true);
 
+                scope.$watch('myorder', function(newVals, oldVals) {
+
+                    if (!newVals) {
+                        return
+                    }
+
+
+                    return order(newVals);
+
+
+
+                }, true);
+
 
 
                 scope.$watch('orderList', function(newVals, oldVals) {
@@ -65,13 +80,21 @@ angular.module('timegrouperApp')
                 //     return parseData(scope.data);
                 // });
 
-
+                var x, z, color,orders,svg;
 
                 function renderDataChange(simMat, orderList) {
 
-                    var x = d3.scale.ordinal().rangeBands([0, width]),
-                        z = d3.scale.linear().domain([0, 4]).clamp(true),
-                        color = d3.scale.linear().range(['red', 'green']);
+                    x = d3.scale.ordinal().rangeBands([0, width]);
+                    z = d3.scale.linear().domain([0, 4]).clamp(true);
+                    color = d3.scale.linear().range(['red', 'green']);
+
+                    var brush = d3.svg.brush()
+                        .x(x)
+                        .y(x)
+                        .on('brushstart', brushstart)
+                        .on("brush", brushed)
+                        .on('brushend', brushend);
+
 
                     var max = d3.max(simMat, function(d) {
                         return d3.max(d, function(h) {
@@ -87,7 +110,7 @@ angular.module('timegrouperApp')
 
                     color.domain([min, max]);
 
-                    var svg = d3.select(element[0]).append("svg")
+                    svg = d3.select(element[0]).append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
                         .style("margin-left", -margin.left + "px")
@@ -99,7 +122,7 @@ angular.module('timegrouperApp')
                         n = nodes.length;
 
                     // Precompute the orders.
-                    var orders = {
+                    orders = {
                         name: d3.range(n).sort(function(a, b) {
                             return d3.ascending(nodes[a].name, nodes[b].name);
                         }),
@@ -116,6 +139,7 @@ angular.module('timegrouperApp')
 
                     // The default sort order.
                     x.domain(orders.name);
+
 
                     svg.append("rect")
                         .attr("class", "background")
@@ -201,49 +225,104 @@ angular.module('timegrouperApp')
                         d3.selectAll("text").classed("active", false);
                     }
 
-                    d3.select("#order").on("change", function() {
-                        clearTimeout(timeout);
-                        order(this.value);
-                    });
 
-                    function order(value) {
-                        x.domain(orders[value]);
 
-                        var t = svg.transition().duration(2500);
 
-                        t.selectAll(".row")
-                            .delay(function(d, i) {
-                                return x(i) * 4;
-                            })
-                            .attr("transform", function(d, i) {
-                                return "translate(0," + x(i) + ")";
-                            })
-                            .selectAll(".cell")
-                            .delay(function(d) {
-                                return x(d.x) * 4;
-                            })
-                            .attr("x", function(d) {
-                                return x(d.x);
-                            });
 
-                        t.selectAll(".column")
-                            .delay(function(d, i) {
-                                return x(i) * 4;
-                            })
-                            .attr("transform", function(d, i) {
-                                return "translate(" + x(i) + ")rotate(-90)";
-                            });
+                    var gBrush = svg.append('g')
+                        .attr("class", 'brush')
+                        .call(brush);
+
+                    function brushed() {
+                        var extent0 = brush.extent(),
+                            extent1;
+
+                        // console.log(extent0);
+                        d3.selectAll('.cell').classed('selected', function(d) {
+                            if (extent0[0][0] <= (x(d.x + 1)) && x(d.x) <= extent0[1][0]) {
+
+                                if (extent0[0][1] <= (x(d.y + 1)) && x(d.y) <= extent0[1][1]) {
+
+                                    return true;
+                                }
+
+                            }
+
+                            return false;
+                        });
+
                     }
 
-                    var timeout = setTimeout(function() {
-                        order("index");
-                        d3.select("#order").property("selectedIndex", 2).node().focus();
-                    }, 5000);
+                    function brushstart() {
+                        d3.selectAll('.cell')
+                            .classed("selecting", true);
+                    }
 
+                    function brushend() {
+                        d3.selectAll('.cell').classed("selecting", !d3.event.target.empty());
+                        var extent0 = brush.extent(),
+                            extent1;
+                        var selectedNames = [];
+
+                        d3.selectAll('.cell').classed('selected', function(d) {
+                            if (extent0[0][0] <= (x(d.x + 1)) && x(d.x) <= extent0[1][0]) {
+
+                                if (extent0[0][1] <= (x(d.y + 1)) && x(d.y) <= extent0[1][1]) {
+
+                                    if (selectedNames.indexOf(nodes[d.x].name) === -1) {
+                                        selectedNames.push(nodes[d.x].name);
+                                    }
+
+                                    if (selectedNames.indexOf(nodes[d.y].name) === -1) {
+                                        selectedNames.push(nodes[d.y].name);
+                                    }
+
+                                    return true;
+                                }
+
+                            }
+
+
+                            return false;
+                        });
+
+
+                        scope.selectednames = selectedNames;
+                        // console.log(selectedNames);
+                        scope.$apply();
+
+                    }
 
                 }
 
+                function order(value) {
+                    x.domain(orders[value]);
 
+                    var t = svg.transition().duration(2500);
+
+                    t.selectAll(".row")
+                        .delay(function(d, i) {
+                            return x(i) * 4;
+                        })
+                        .attr("transform", function(d, i) {
+                            return "translate(0," + x(i) + ")";
+                        })
+                        .selectAll(".cell")
+                        .delay(function(d) {
+                            return x(d.x) * 4;
+                        })
+                        .attr("x", function(d) {
+                            return x(d.x);
+                        });
+
+                    t.selectAll(".column")
+                        .delay(function(d, i) {
+                            return x(i) * 4;
+                        })
+                        .attr("transform", function(d, i) {
+                            return "translate(" + x(i) + ")rotate(-90)";
+                        });
+                }
 
             }
         };
