@@ -237,6 +237,15 @@ angular.module('timegrouperApp')
             return $scope.selectedNames;
         }, function(newVals, oldVals) {
 
+            updatePatches();
+
+
+
+        }, true);
+
+        function updatePatches() {
+
+            
             var temp = [];
 
             for (var i = 0; i < parsedData.length; i++) {
@@ -249,8 +258,9 @@ angular.module('timegrouperApp')
             console.log(temp);
 
             $scope.lineData = temp;
+        }
 
-        }, true);
+
 
         $scope.$watch(function() {
             return $scope.selectedGroups;

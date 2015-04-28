@@ -117,6 +117,8 @@ angular.module('timegrouperApp')
 
                     // color.domain([min, max]);
 
+                    d3.select(element[0]).selectAll('svg');
+
                     svg = d3.select(element[0]).append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
