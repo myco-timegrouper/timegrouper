@@ -14,7 +14,7 @@ angular.module('timegrouperApp')
                 similarity: "=",
                 orderlist: "=",
                 selectednames: '=',
-                myorder: "=",
+                myorder: "="
             },
 
             link: function postLink(scope, element, attrs) {
@@ -80,22 +80,13 @@ angular.module('timegrouperApp')
                 //     return parseData(scope.data);
                 // });
 
-                var x, z, color,orders,svg;
+                var x, z, color, orders, svg;
 
                 function renderDataChange(simMat, orderList) {
 
                     x = d3.scale.ordinal().rangeBands([0, width]);
                     z = d3.scale.linear().domain([0, 4]).clamp(true);
-                    color = d3.scale.linear().range(['red', 'green']);
-
-                    var brush = d3.svg.brush()
-                        .x(x)
-                        .y(x)
-                        .on('brushstart', brushstart)
-                        .on("brush", brushed)
-                        .on('brushend', brushend);
-
-
+                    // color = d3.scale.linear().range([d3.hsl(0,1,.5), d3.hsl(359,1,.5)]);
                     var max = d3.max(simMat, function(d) {
                         return d3.max(d, function(h) {
                             return h.z;
@@ -108,7 +99,24 @@ angular.module('timegrouperApp')
                         });
                     });
 
-                    color.domain([min, max]);
+                    var color = d3.scale.linear()
+                        .domain([min, (min+max)*.5, max])
+                        .range(["#d7191c", "#ffffbf", "#2c7bb6"])
+                        .interpolate(d3.interpolateHcl);
+
+                    var brush = d3.svg.brush()
+                        .x(x)
+                        .y(x)
+                        .on('brushstart', brushstart)
+                        .on("brush", brushed)
+                        .on('brushend', brushend);
+
+
+
+
+                    // color.domain([min, max]);
+
+                    d3.select(element[0]).selectAll('svg').remove();
 
                     svg = d3.select(element[0]).append("svg")
                         .attr("width", width + margin.left + margin.right)
@@ -138,7 +146,7 @@ angular.module('timegrouperApp')
                     };
 
                     // The default sort order.
-                    x.domain(orders.name);
+                    x.domain(orders.index);
 
 
                     svg.append("rect")
@@ -263,6 +271,8 @@ angular.module('timegrouperApp')
                         var extent0 = brush.extent(),
                             extent1;
                         var selectedNames = [];
+
+                        var temp;
 
                         d3.selectAll('.cell').classed('selected', function(d) {
                             if (extent0[0][0] <= (x(d.x + 1)) && x(d.x) <= extent0[1][0]) {
