@@ -18,7 +18,7 @@ angular.module('timegrouperApp', [
     'firebase',
     'firebase.ref',
     'firebase.auth',
-    'angularChart',
+    'nvd3',
     'angular-loading-bar',
     'ui.bootstrap'
   ]);

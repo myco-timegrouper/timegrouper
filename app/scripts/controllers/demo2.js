@@ -133,20 +133,50 @@ angular.module('timegrouperApp')
             $scope.isLoading = true;
 
             d3.csv("data/hazard_alg.csv", function(data) {
+                //do stuff with data
+                // console.log(data);
 
-                var length = 1938;
+                var tempObject = {
+                    "key": "start",
+                    'values': []
+                };
 
-                for (var i = 0; i < length; i++) {
-                    parsedData.push({
-                        date: i + 1
+                $scope.maxLoading = data.length;
+
+                data.forEach(function(d, i) {
+
+                    if (tempObject.key != d.a_id) {
+
+                        parsedData.push(angular.copy(tempObject));
+
+                        tempObject = {
+                            "key": "start",
+                            'values': []
+                        };
+
+                        tempObject.key = d.a_id;
+                        // $scope.loading = i;
+                        // $scope.$apply();
+
+                    }
+
+                    // if (i%100000 === 0) {
+
+
+                    // $scope.loading = Math.floor(i/100000);
+                    // $scope.$apply();
+                    // console.log($scope.loading + '/' + $scope.maxLoading);
+                    // }
+
+
+
+                    tempObject.values.push({
+                        x: +d.a_date,
+                        y: +d.a_hazard
                     });
-                }
 
-                data.forEach(function(d) {
-                    parsedData[+d.a_date - 1][d.a_id] = +d.a_hazard;
-                });
 
-                $scope.dataset = parsedData;
+                })
 
                 $scope.isLoading = false;
                 $scope.$apply();
@@ -162,76 +192,65 @@ angular.module('timegrouperApp')
 
         };
 
+        $scope.lineOptions = {
+            chart: {
+                type: 'lineWithFocusChart',
+                height: 450,
+                margin: {
+                    top: 20,
+                    right: 20,
+                    bottom: 60,
+                    left: 40
+                },
+                transitionDuration: 500,
+                xAxis: {
+                    axisLabel: 'Date since deployed',
+                    tickFormat: function(d) {
+                        return d3.format(',f')(d);
+                    }
+                },
+                x2Axis: {
+                    tickFormat: function(d) {
+                        return d3.format(',f')(d);
+                    }
+                },
+                yAxis: {
+                    axisLabel: 'Patch Rate',
+                    tickFormat: function(d) {
+                        return d3.format(',.2f')(d);
+                    },
+                    rotateYLabel: false
+                },
+                y2Axis: {
+                    tickFormat: function(d) {
+                        return d3.format(',.2f')(d);
+                    }
+                }
 
+            }
+        };
+
+
+        $scope.lineData = [];
 
         $scope.$watch(function() {
             return $scope.selectedNames;
         }, function(newVals, oldVals) {
 
-            if (!newVals) {
-                return ;
-            } 
-
             var temp = [];
 
-            // for (var i = 0; i < parsedData.length; i++) {
-            //     if ($scope.selectedNames.indexOf(parsedData[i].key) !== -1) {
-            //         temp.push(parsedData[i]);
-            //     }
-            // }
-
-
+            for (var i = 0; i < parsedData.length; i++) {
+                if ($scope.selectedNames.indexOf(parsedData[i].key) !== -1) {
+                    temp.push(parsedData[i]);
+                }
+            }
 
 
             console.log(temp);
 
-            $scope.options.rows = newVals.map(function(d) {
-                return {key: d}
-            });
-
-            $scope.dataset = parsedData.map(function(d) {
-
-                var temp = {};
-                temp.date = d.date;
-
-                newVals.map(function(e) { 
-
-                    temp[e] = d[e];
-
-
-                });
-
-                return temp;
-            });
+            $scope.lineData = temp;
 
         }, true);
-
-
-        $scope.schema = {
-            date: {
-                type: 'numeric',
-                name: 'Date'
-            }
-        };
-
-        $scope.options = {
-            rows: [],
-            xAxis: {
-                key: 'date'
-            },
-            "subchart": {
-                "selector": true,
-                "show": true
-            },
-            "zoom": {
-                "range": [
-                ]
-            },
-            "selection": {
-                "selected": []
-            },
-            "type": "line"
-        };
 
         $scope.$watch(function() {
             return $scope.selectedGroups;

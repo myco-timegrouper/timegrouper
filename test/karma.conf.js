@@ -34,10 +34,8 @@ module.exports = function(config) {
       'bower_components/angular-loading-bar/build/loading-bar.js',
       'bower_components/crossfilter/crossfilter.js',
       'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
-      'bower_components/moment/moment.js',
-      'bower_components/n3-line-chart/build/line-chart.min.js',
-      'bower_components/c3/c3.js',
-      'bower_components/angular-chart/angular-chart.js',
+      'bower_components/nvd3/build/nv.d3.js',
+      'bower_components/angular-nvd3/dist/angular-nvd3.min.js',
       'bower_components/mockfirebase/browser/mockfirebase.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
