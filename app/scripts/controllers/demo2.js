@@ -38,7 +38,7 @@ angular.module('timegrouperApp')
             detail: '#extract feature based on ICA, then use cosine distance'
         }];
 
-        $scope.simMetric = 'nmf_euc';
+        $scope.simMetric = $scope.simMetrics[5];
 
         $scope.algorithms = [{
             name: 'kmeans',
@@ -60,18 +60,112 @@ angular.module('timegrouperApp')
             detail: '# DBSCAN'
         }];
 
-        $scope.algorithm = 'kmeans';
+        $scope.algorithm = $scope.algorithms[1];
+
+        $scope.appNames = {
+            chrome: true,
+            firefox: true,
+            acroread: true,
+            thunderbird: true,
+            flashplayer: true,
+            quicktime: true,
+            msword: true,
+            opera: true,
+            safari: true,
+            wireshark: true
+        };
+
+
+        $scope.updateMechanisms = [{
+            label: 'Manual Update',
+            selected: true,
+            value: 'MU'
+        }, {
+            label: 'Prompted Download',
+            selected: true,
+            value: 'PD'
+        }, {
+            label: 'Prompted Install',
+            selected: true,
+            value: 'PI'
+        }, {
+            label: 'Silent Update',
+            selected: true,
+            value: 'SU'
+        }];
+
+        $scope.updateMechanismsForTimeSeries = [{
+            label: 'Manual Update',
+            selected: true,
+            value: 'MU'
+        }, {
+            label: 'Prompted Download',
+            selected: true,
+            value: 'PD'
+        }, {
+            label: 'Prompted Install',
+            selected: true,
+            value: 'PI'
+        }, {
+            label: 'Silent Update',
+            selected: true,
+            value: 'SU'
+        }];
+
+        $scope.exploitableOnly = false;
+
+
+        $scope.exploitableOnlyForTimeSeries = false;
+
+        var clearCharts = function() {
+
+            $scope.summaryMatrix = [];
+            $scope.summaryOrderList = [];
+        }
+
 
         $scope.loadData = function() {
 
+            clearCharts();
+
             var url = 'https://lit-hollows-6344.herokuapp.com/getSimMatrix';
 
+            var appNames = [];
 
-            $http.post(url, {
-                    simMetric: $scope.simMetric.name,
-                    cAlgorithm: $scope.algorithm.name,
-                    appName: ['chrome', 'firefox', 'acroread', 'thunderbird', 'flashplayer', 'quicktime', 'msword', 'opera', 'safari', 'wireshark']
-                })
+            for (var key in $scope.appNames) {
+
+                if ($scope.appNames.hasOwnProperty(key)) {
+
+                    if ($scope.appNames[key]) {
+                        appNames.push(key);
+                    }
+
+                }
+            }
+
+            var updateMechs = $scope.updateMechanisms.filter(function(d) {
+                return d.selected;
+            });
+
+            updateMechs = updateMechs.map(function(d) {
+                return d.value;
+            });
+
+            // console.log(updateMechs);
+
+            var argument = {
+                simMetric: $scope.simMetric.name,
+                cAlgorithm: $scope.algorithm.name,
+                appName: appNames,
+                updateMech: updateMechs
+            };
+
+            if ($scope.exploitableOnly) {
+                argument.exploitable = 'true';
+            }
+
+
+            $http.post(url, argument)
                 .success(function(data, status, headers, config) {
                     // d3.json("data/all.json", function(data) {
 
@@ -85,8 +179,6 @@ angular.module('timegrouperApp')
                         originalMat = data[3];
 
                         summaryMatLabel.splice(summaryMat.length, summaryMatLabel.length - summaryMat.length);
-
-
 
                         var data = summaryMat.map(function(row, i) {
                             return row.map(function(value, j) {
@@ -112,7 +204,38 @@ angular.module('timegrouperApp')
 
                         $scope.summaryOrderList = namesList;
 
-                        // $scope.$apply();
+                    } else if (data.length === 2) {
+
+                        summaryMatLabel = data[0];
+                        summaryMat = data[1];
+
+                        summaryMatLabel.splice(summaryMat.length, summaryMatLabel.length - summaryMat.length);
+
+                        var data = summaryMat.map(function(row, i) {
+                            return row.map(function(value, j) {
+                                return {
+                                    x: j,
+                                    y: i,
+                                    z: +value
+                                };
+                            });
+                        });
+
+                        $scope.simMatrix = data;
+
+                        var namesList = summaryMatLabel.map(function(d, i) {
+                            return {
+                                name: d.name,
+                                count: 0,
+                                group: 1,
+                                index: i,
+                                patches: d.patches
+                            };
+                        });
+
+                        $scope.orderList = namesList;
+
+                        $scope.noSummary = true;
 
 
                     }
@@ -128,66 +251,60 @@ angular.module('timegrouperApp')
         var parsedData = [];
         $scope.orders = ['name', 'index', 'count', 'group'];
 
-        var loadTimeSeriesData = function() {
+        var patchData;
 
-            $scope.isLoading = true;
+        var updatePatches = function() {
 
-            d3.csv("data/hazard_alg.csv", function(data) {
-                //do stuff with data
-                // console.log(data);
+            var url = 'https://lit-hollows-6344.herokuapp.com/getPatches';
 
-                var tempObject = {
-                    "key": "start",
-                    'values': []
-                };
+            console.log($scope.selectedNames);
 
-                $scope.maxLoading = data.length;
+            $http.post(url, {
+                    patchId: $scope.selectedNames
+                })
+                .success(function(data, status, headers, config) {
+                    // d3.json("data/all.json", function(data) {
 
-                data.forEach(function(d, i) {
+                    data = JSON.parse(data);
 
-                    if (tempObject.key != d.a_id) {
+                    console.log(data);
 
-                        parsedData.push(angular.copy(tempObject));
+                    patchData = [];
 
-                        tempObject = {
-                            "key": "start",
-                            'values': []
-                        };
+                    for (var i = 0; i < data.length; i++) {
 
-                        tempObject.key = d.a_id;
-                        // $scope.loading = i;
-                        // $scope.$apply();
+                        for (var k in data[i]) {
 
+                            if (data[i].hasOwnProperty(k)) {
+
+                                var timeSeries = data[i][k].map(function(d, i) {
+                                    return {
+                                        x: i,
+                                        y: d
+                                    };
+                                });
+
+                                patchData.push({
+                                    key: k,
+                                    values: timeSeries
+                                });
+                            }
+                        }
                     }
 
-                    // if (i%100000 === 0) {
+                    $scope.lineData = patchData;
+                    $scope.showTimeSeries = true;
+
+                    console.log(patchData);
 
 
-                    // $scope.loading = Math.floor(i/100000);
-                    // $scope.$apply();
-                    // console.log($scope.loading + '/' + $scope.maxLoading);
-                    // }
-
-
-
-                    tempObject.values.push({
-                        x: +d.a_date,
-                        y: +d.a_hazard
-                    });
 
 
                 })
-
-                $scope.isLoading = false;
-                $scope.$apply();
-
-            }).on("progress", function(event) {
-                //update progress bar
-                if (d3.event.lengthComputable) {
-                    var percentComplete = Math.round(d3.event.loaded * 100 / d3.event.total);
-                    console.log(percentComplete);
-                }
-            });
+                .error(function(data, status, headers, config) {
+                    console.log(status);
+                    alert("Server API error");
+                });
 
 
         };
@@ -237,28 +354,68 @@ angular.module('timegrouperApp')
             return $scope.selectedNames;
         }, function(newVals, oldVals) {
 
+            if (!newVals) {
+
+                return;
+            }
+
             updatePatches();
 
 
 
         }, true);
 
-        function updatePatches() {
+        $scope.$watch(function() {
+            return $scope.updateMechanismsForTimeSeries;
+        }, function(newVals, oldVals) {
 
-            
-            var temp = [];
-
-            for (var i = 0; i < parsedData.length; i++) {
-                if ($scope.selectedNames.indexOf(parsedData[i].key) !== -1) {
-                    temp.push(parsedData[i]);
-                }
+            if (!$scope.selectedNames) {
+                return;
             }
 
+            filterPatches();
 
-            console.log(temp);
+        }, true);
 
-            $scope.lineData = temp;
-        }
+        $scope.$watch(function() {
+            return $scope.exploitableOnlyForTimeSeries;
+        }, function(newVals, oldVals) {
+
+            if (!$scope.selectedNames) {
+                return;
+            }
+
+            filterPatches();
+
+        }, true);
+
+        var filterPatches = function() {
+
+            var filteredNames = $scope.selectedNames.filter(function(d) {
+                var patch = originalLabel.filter(function(p) {
+                    return p.name === d;
+                })[0];
+
+                var updateMech = $scope.updateMechanismsForTimeSeries.filter(function(d) {
+                    return d.value === patch.updateMech;
+                })[0];
+
+                if ($scope.exploitableOnlyForTimeSeries && patch.exploitable === false) {
+                    return false;
+                }
+
+                if (updateMech.selected) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            $scope.lineData = patchData.filter(function(d) {
+                return filteredNames.indexOf(d.key) !== -1;
+            });
+
+        };
 
 
 
@@ -337,37 +494,6 @@ angular.module('timegrouperApp')
 
         }, true);
 
-        // $scope.$watch(function() {
-        //     return $scope.summaryRange;
-        // }, function(newVals, oldVals) {
-
-        //     var temp = [];
-
-        //     var selectedPatches = [];
-
-        //     if (!newVals || newVals.length === 0) {
-        //         return;
-        //     }
-
-        //     for (var i = 0; i < newVals.length; i++) {
-        //         var j = parseInt(newVals[i].slice(5));
-        //         var patches = summaryMatLabel[j].patches;
-        //         for (var k = 0; k < patches.length; k++) {
-        //             selectedPatches.push(patches[k]);
-        //         }
-
-
-
-        //     }
-
-        //     console.log(selectedPatches);
-
-
-
-        // }, true);
-
-        // loadData();
-        loadTimeSeriesData();
 
 
 

@@ -1,41 +1,47 @@
 <div ng-show='isLoading'>
-Loading  {{loading}} / {{maxLoading}}
-<progressbar value='loading' max='15'> </progressbar>
+    Loading {{loading}} / {{maxLoading}}
+    <progressbar value='loading' max='15'> </progressbar>
 </div>
-
-
-  <label>Select Similarity Metric:
+<h3> 1. Get the similarity data </h3>
+<label> (a) Select Similarity Metric:
     <select ng-model="simMetric" ng-options="s as s.name for s in simMetrics">
     </select>
-  </label> </br>
-
-    <label>Select Clustering Method:
+</label> {{simMetric.detail}}
+<br/>
+<label> (b) Select Clustering Method:
     <select ng-model="algorithm" ng-options="a as a.name for a in algorithms">
-    </select>
-  </label>
-
-  <button ng-click="loadData()" >
-  Get Data
+    </select> 
+</label>{{algorithm.detail}}
+<br/>
+<label> (c) Select data filters </label>
+<div class="well">
+    <h5> Apps </h5>
+    <label ng-repeat='(appName,enabled) in appNames'>
+        <input type="checkbox" ng-model='appNames[appName]' /> {{appName}}
+    </label>
+    <h5> Update Mechanism </h5>
+    <label ng-repeat='updateMechanism in updateMechanisms'>
+        <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
+    </label>
+    <h5> Exploitable</h5>
+    <label>
+        <input type="radio" ng-model='exploitableOnly' ng-value="false" /> All
+    </label>
+    <br/>
+    <label>
+        <input type="radio" ng-model='exploitableOnly' ng-value="true" /> Only exploitable
+    </label>
+    <br/>
+</div>
+<button ng-click="loadData()">
+    Get Data
 </button>
-
-<br>
-
-
-Similarity Metric {{simMetric.detail}}
-
-<br>
-
-clustering algorithm {{algorithm.detail}}
-
-<h3>Summary Matrix</h3>
-
-<div summarymatrix class="overview" similarity="summaryMatrix" orderlist="summaryOrderList" selectednames="selectedGroups" myorder='summaryOrder' selectedrange='summaryRange' ></div>
-
-
-<h3>Selected Matrix</h3>
-
-
-
+<h3>2. From Summary Matrix, select region of interest</h3>
+<div summarymatrix class="overview" similarity="summaryMatrix" orderlist="summaryOrderList" selectednames="selectedGroups" myorder='summaryOrder' selectedrange='summaryRange'></div>
+<div ng-show='noSummary'>
+    Because the number of nodes are small, there is no summary matrix. Use similarity matrix below.
+</div>
+<h3>3. From similiartiy matrix, select entities to see time series</h3>
 <div similaritymatrix class="overview" similarity="simMatrix" orderlist="orderList" selectednames="selectedNames" myorder='myorder'></div>
 <!-- 
 
@@ -52,5 +58,23 @@ clustering algorithm {{algorithm.detail}}
             >
          <svg></svg>
     </nvd3-line-with-focus-chart> -->
+<h3>4. Selected TimeSeries</h3>
+<nvd3 options='lineOptions' data='lineData'></nvd3>
+<div ng-show='showTimeSeries'>
+    <h4> Filter for the time series 
 
- <nvd3 options='lineOptions' data='lineData'></nvd3>
+<h5> Update Mechanism </h5>
+<label ng-repeat='updateMechanism in updateMechanismsForTimeSeries'>
+  <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
+</label>
+
+
+<h5> Exploitable</h5>
+<label>
+  <input type="radio" ng-model='exploitableOnlyForTimeSeries' ng-value="false" /> All 
+</label> <br/>
+
+<label>
+  <input type="radio" ng-model='exploitableOnlyForTimeSeries' ng-value="true" /> Only exploitable 
+</label> <br/>
+</div>

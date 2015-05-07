@@ -99,7 +99,7 @@ angular.module('timegrouperApp')
                         });
                     });
 
-                    var color = d3.scale.linear()
+                    color = d3.scale.linear()
                         .domain([min, (min+max)*.5, max])
                         .range(["#d7191c", "#ffffbf", "#2c7bb6"])
                         .interpolate(d3.interpolateHcl);
@@ -119,6 +119,7 @@ angular.module('timegrouperApp')
                     d3.select(element[0]).selectAll('svg').remove();
 
                     svg = d3.select(element[0]).append("svg")
+                        .classed("matrix", true)
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
                         .style("margin-left", -margin.left + "px")
@@ -196,6 +197,10 @@ angular.module('timegrouperApp')
                         .text(function(d, i) {
                             return nodes[i].name;
                         });
+
+
+
+                    drawHeatMapLegends();
 
                     function row(row) {
                         var cell = d3.select(this).selectAll(".cell")
@@ -304,6 +309,63 @@ angular.module('timegrouperApp')
                     }
 
                 }
+
+                var drawHeatMapLegends = function() {
+
+                    var colorDomain = color.domain();
+
+                    var textMargin = 20;
+
+                    var widthHeatMap = 20;
+                    var heightHeatMap = height - 2 * textMargin;
+
+
+                    var yScaleForHeatMap = d3.scale.linear()
+                        .domain(colorDomain)
+                        .rangeRound([0 + textMargin, height / 2, height - textMargin]);
+
+                    var values = d3.range(colorDomain[0], colorDomain[2], (colorDomain[2] - colorDomain[0]) / heightHeatMap);
+
+                    var g = svg.append("g")
+                        .attr("class", "legend");
+
+                     g.append("text")
+                        .attr("x", -100)
+                        .attr("y", 15)
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "left")
+                        .text("more similar (" +  d3.round(colorDomain[0],1) + ")")
+                        .attr('transform', function(d, i) { // NEW
+                            var vert = yScaleForHeatMap(values[0]); // NEW
+                            var horz = width + widthHeatMap + 5; // NEW
+                            return 'translate(' + horz + ',' + vert + ')rotate(-90)'; // NEW
+                        });
+
+                    g.append("text")
+                        .attr("x", 0)
+                        .attr("y", 15)
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "left")
+                        .text("less similar (" + d3.round(colorDomain[2],1) + ")")
+                        .attr('transform', function(d, i) { // NEW
+                            var vert = yScaleForHeatMap(values[values.length-1]); // NEW
+                            var horz = width + widthHeatMap + 5; // NEW
+                            return 'translate(' + horz + ',' + vert + ')rotate(-90)'; // NEW
+                        });
+
+
+                    var heatmap = g.selectAll("rect")
+                        .data(values)
+                        .enter().append("rect")
+                        .attr("x", width + 10)
+                        .attr("y", yScaleForHeatMap)
+                        .attr("width", 20)
+                        .attr("height", 1)
+                        .style("fill", color);
+
+                   
+
+                };
 
                 function order(value) {
                     x.domain(orders[value]);
