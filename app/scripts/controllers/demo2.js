@@ -494,7 +494,63 @@ angular.module('timegrouperApp')
 
         }, true);
 
+        $scope.selectAllAppNames = function () {
+            $scope.appNames = {
+                chrome: true,
+                firefox: true,
+                acroread: true,
+                thunderbird: true,
+                flashplayer: true,
+                quicktime: true,
+                msword: true,
+                opera: true,
+                safari: true,
+                wireshark: true
+            };
+        };
 
+        $scope.deselectAllAppNames = function() {
+            $scope.appNames = {
+                chrome: false,
+                firefox: false,
+                acroread: false,
+                thunderbird: false,
+                flashplayer: false,
+                quicktime: false,
+                msword: false,
+                opera: false,
+                safari: false,
+                wireshark: false
+            };
+        };
+
+        $scope.selectAllUpdateMechanisms = function() {
+
+            $scope.updateMechanisms.forEach(function(d) {
+                d.selected = true;
+            });
+        };
+
+        $scope.deselectAllUpdateMechanisms = function() {
+
+            $scope.updateMechanisms.forEach(function(d) {
+                d.selected = false;
+            });
+        };
+
+         $scope.selectAllUpdateMechanismsTimeSeries = function() {
+
+            $scope.updateMechanismsForTimeSeries.forEach(function(d) {
+                d.selected = true;
+            });
+        };
+
+        $scope.deselectAllUpdateMechanismsTimeSeries = function() {
+
+            $scope.updateMechanismsForTimeSeries.forEach(function(d) {
+                d.selected = false;
+            });
+        };
 
 
     });

@@ -128,15 +128,14 @@
     	<tr>
         	<td rowspan="2">
             	<strong>Applications</strong>:<br />
-				<a href="#">All</a> | <a href="#">None</a><br /><br />
+				<a href="" class="btn btn-link btn-default" ng-click="selectAllAppNames()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllAppNames()">None</a><br /><br />
                 <label ng-repeat='(appName,enabled) in appNames'>
                     <input type="checkbox" ng-model='appNames[appName]' /> {{appName}}
                 </label>
             </td>
         	<td>
             	<strong>Update Mechanism</strong>:<br />
-				<a href="#">All</a> | <a href="#">None</a><br /><br />
-                <label ng-repeat='updateMechanism in updateMechanisms'>
+				<a href="" class="btn btn-link btn-default" ng-click="selectAllUpdateMechanisms()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllUpdateMechanisms()">None</a><br /><br /><label ng-repeat='updateMechanism in updateMechanisms'>
                     <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
                 </label>
             </td>
@@ -196,7 +195,7 @@
 <div id="divTSFilter">
 
 <strong>Update Mechanism</strong>:<br />
-<a href="#">All</a> | <a href="#">None</a><br /><br />
+<a href="" class="btn btn-link btn-default" ng-click="selectAllUpdateMechanismsTimeSeries()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllUpdateMechanismsTimeSeries()">None</a><br /><br />
 <label ng-repeat='updateMechanism in updateMechanismsForTimeSeries'>
   <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
 </label>
