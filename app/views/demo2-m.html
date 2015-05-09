@@ -171,23 +171,14 @@
 3. Similarity Matrix 
 <img src="images/help.png" alt="similarity matrix tooltip" title="This similarity matrix shows similarities between pairs of patches. Select a region of interest to generate the time series chart and proceed to step 4." />
 </h3>
-<div similaritymatrix class="overview" similarity="simMatrix" orderlist="orderList" selectednames="selectedNames" myorder='myorder'></div>
-<!-- 
-    <nvd3-line-with-focus-chart
-            data="exampleData"
-            id="exampleId"
-            height="500"
-            height2="100"
-            width="600"
-            margin="{left:80,top:50,bottom:30,right:50}"
-            showLegend="true"
-            interactive='true'
-            tooltips='true'
-            >
-         <svg></svg>
-    </nvd3-line-with-focus-chart> -->
-    
+<div similaritymatrix class="overview" similarity="simMatrix" orderlist="orderList" selectednames="selectedNames" myorder='myorder' highlight='appNamesHighlight'></div>
 
+
+<strong>Highlight Applications</strong>:<br />
+				<a href="" class="btn btn-link btn-default" ng-click="selectAllAppNamesHighlight()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllAppNamesHighlight()">None</a><br /><br />
+                <label ng-repeat='(appName,enabled) in appNamesHighlight'>
+                    <input type="checkbox" ng-model='appNamesHighlight[appName]' /> {{appName}}
+                </label>
     
 <h3>4. Selected TimeSeries</h3>
 

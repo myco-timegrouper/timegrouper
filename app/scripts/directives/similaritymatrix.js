@@ -14,7 +14,8 @@ angular.module('timegrouperApp')
                 similarity: "=",
                 orderlist: "=",
                 selectednames: '=',
-                myorder: "="
+                myorder: "=",
+                highlight: "="
             },
 
             link: function postLink(scope, element, attrs) {
@@ -61,6 +62,19 @@ angular.module('timegrouperApp')
 
                 }, true);
 
+                scope.$watch('highlight', function(newVals, oldVals) {
+
+                    if (!newVals) {
+                        return
+                    }
+
+
+                    return highlightCells(newVals);
+
+
+
+                }, true);
+
 
 
                 scope.$watch('orderList', function(newVals, oldVals) {
@@ -82,6 +96,13 @@ angular.module('timegrouperApp')
 
                 var x, z, color, orders, svg;
 
+                function highlightCells( appNames ) {
+
+                    console.log(appNames);
+
+
+                }
+
                 function renderDataChange(simMat, orderList) {
 
                     x = d3.scale.ordinal().rangeBands([0, width]);
@@ -100,7 +121,7 @@ angular.module('timegrouperApp')
                     });
 
                     color = d3.scale.linear()
-                        .domain([min, (min+max)*.5, max])
+                        .domain([min, (min + max) * .5, max])
                         .range(["#d7191c", "#ffffbf", "#2c7bb6"])
                         .interpolate(d3.interpolateHcl);
 
@@ -329,12 +350,12 @@ angular.module('timegrouperApp')
                     var g = svg.append("g")
                         .attr("class", "legend");
 
-                     g.append("text")
+                    g.append("text")
                         .attr("x", -100)
                         .attr("y", 15)
                         .attr("dy", ".35em")
                         .style("text-anchor", "left")
-                        .text("more similar (" +  d3.round(colorDomain[0],1) + ")")
+                        .text("more similar (" + d3.round(colorDomain[0], 1) + ")")
                         .attr('transform', function(d, i) { // NEW
                             var vert = yScaleForHeatMap(values[0]); // NEW
                             var horz = width + widthHeatMap + 5; // NEW
@@ -346,9 +367,9 @@ angular.module('timegrouperApp')
                         .attr("y", 15)
                         .attr("dy", ".35em")
                         .style("text-anchor", "left")
-                        .text("less similar (" + d3.round(colorDomain[2],1) + ")")
+                        .text("less similar (" + d3.round(colorDomain[2], 1) + ")")
                         .attr('transform', function(d, i) { // NEW
-                            var vert = yScaleForHeatMap(values[values.length-1]); // NEW
+                            var vert = yScaleForHeatMap(values[values.length - 1]); // NEW
                             var horz = width + widthHeatMap + 5; // NEW
                             return 'translate(' + horz + ',' + vert + ')rotate(-90)'; // NEW
                         });
@@ -363,7 +384,7 @@ angular.module('timegrouperApp')
                         .attr("height", 1)
                         .style("fill", color);
 
-                   
+
 
                 };
 
