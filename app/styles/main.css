@@ -4,20 +4,34 @@ svg.matrix {
 }
 
 .selecting {
-  fill-opacity: .5;
+  fill-opacity: .2;
 }
 
 .selecting .selected {
   stroke: #f00;
-  stroke-width: 2px;
+  stroke-width: 1px;
 }
 
 .selected {
   fill-opacity:1;
-  stroke: #f00;
-  stroke-width: 2px;
+  /*stroke: #f00;*/
+  /*stroke-width: 2px;*/
 
 }
+
+.brushing {
+
+  stroke-width: 5px;
+}
+
+.brush0 {
+  stroke:red;
+}
+
+.brush1 {
+  stroke: blue;
+}
+
 
 .brush .extent {
   stroke: #000;

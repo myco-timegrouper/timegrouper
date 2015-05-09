@@ -15,7 +15,9 @@ angular.module('timegrouperApp')
                 orderlist: "=",
                 selectednames: '=',
                 myorder: "=",
-                highlight: "="
+                highlight: "=",
+                labelinfo: "=",
+                currentbrush: "="
             },
 
             link: function postLink(scope, element, attrs) {
@@ -30,6 +32,8 @@ angular.module('timegrouperApp')
                     },
                     width = 720,
                     height = 720;
+
+                var currentBrush = 0; 
 
                 scope.$watch('similarity', function(newVals, oldVals) {
 
@@ -69,9 +73,7 @@ angular.module('timegrouperApp')
                     }
 
 
-                    return highlightCells(newVals);
-
-
+                    return renderDataChange(scope.similarity, scope.orderlist);
 
                 }, true);
 
@@ -88,22 +90,27 @@ angular.module('timegrouperApp')
 
                 }, true);
 
-                // scope.$watch(function() {
-                //     return angular.element(window)[0].innerWidth;
-                // }, function() {
-                //     return parseData(scope.data);
-                // });
 
                 var x, z, color, orders, svg;
 
                 function highlightCells( appNames ) {
 
-                    console.log(appNames);
+                    // console.log(appNames);
+                    // console.log(scope.labelinfo);
 
 
                 }
 
+
+
                 function renderDataChange(simMat, orderList) {
+
+                    if (!simMat || !orderList) {
+                        return;
+                    }
+
+
+                    var highlightInfo = scope.orderlist.map(checkHighlight);
 
                     x = d3.scale.ordinal().rangeBands([0, width]);
                     z = d3.scale.linear().domain([0, 4]).clamp(true);
@@ -223,14 +230,35 @@ angular.module('timegrouperApp')
 
                     drawHeatMapLegends();
 
-                    function row(row) {
-                        var cell = d3.select(this).selectAll(".cell")
+                    function checkHighlight(patchName) {
+
+                        var patch = scope.labelinfo.filter(function(d) {
+                            return d.name === patchName.name;
+                        });
+
+                        return scope.highlight[patch[0].app];  
+                    }
+
+
+                    function row(row, columnIndex) {
+
+
+                        var cell = d3.select(this).selectAll(".simCell")
                             // .data(row.filter(function(d) {
                             //     return d.z;
                             // }))
                             .data(row)
                             .enter().append("rect")
-                            .attr("class", "cell")
+                            .attr("class", function(d, i) {
+
+                                var base = 'simCell selecting'; 
+
+                                if (highlightInfo[d.x] && highlightInfo[d.y] ) {
+
+                                    base = base + ' selected';
+                                }
+                                return base; 
+                            })
                             .attr("x", function(d) {
                                 return x(d.x);
                             })
@@ -244,6 +272,8 @@ angular.module('timegrouperApp')
                             })
                             .on("mouseover", mouseover)
                             .on("mouseout", mouseout);
+
+                        console.log(columnIndex);
                     }
 
                     function mouseover(p) {
@@ -271,8 +301,10 @@ angular.module('timegrouperApp')
                         var extent0 = brush.extent(),
                             extent1;
 
+
+
                         // console.log(extent0);
-                        d3.selectAll('.cell').classed('selected', function(d) {
+                        d3.selectAll('.simCell').classed('brush'+scope.currentbrush, function(d) {
                             if (extent0[0][0] <= (x(d.x + 1)) && x(d.x) <= extent0[1][0]) {
 
                                 if (extent0[0][1] <= (x(d.y + 1)) && x(d.y) <= extent0[1][1]) {
@@ -285,22 +317,30 @@ angular.module('timegrouperApp')
                             return false;
                         });
 
+
+                        d3.selectAll('.brush'+scope.currentbrush).classed('brushing', true);
+
                     }
 
                     function brushstart() {
-                        d3.selectAll('.cell')
-                            .classed("selecting", true);
+
+
+                        var brush = 'brush' + scope.currentbrush;
+
+                        d3.selectAll(brush)
+                            .classed(brush, false)
+                            .classed('brushing',false);
                     }
 
                     function brushend() {
-                        d3.selectAll('.cell').classed("selecting", !d3.event.target.empty());
+                        // d3.selectAll('.cell').classed("selecting", !d3.event.target.empty());
                         var extent0 = brush.extent(),
                             extent1;
                         var selectedNames = [];
 
                         var temp;
 
-                        d3.selectAll('.cell').classed('selected', function(d) {
+                        d3.selectAll('.simCell').classed('brush'+scope.currentbrush, function(d) {
                             if (extent0[0][0] <= (x(d.x + 1)) && x(d.x) <= extent0[1][0]) {
 
                                 if (extent0[0][1] <= (x(d.y + 1)) && x(d.y) <= extent0[1][1]) {
@@ -321,6 +361,8 @@ angular.module('timegrouperApp')
 
                             return false;
                         });
+
+
 
 
                         scope.selectednames = selectedNames;
@@ -400,7 +442,7 @@ angular.module('timegrouperApp')
                         .attr("transform", function(d, i) {
                             return "translate(0," + x(i) + ")";
                         })
-                        .selectAll(".cell")
+                        .selectAll(".simCell")
                         .delay(function(d) {
                             return x(d.x) * 4;
                         })

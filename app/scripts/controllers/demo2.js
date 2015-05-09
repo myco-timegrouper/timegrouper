@@ -75,6 +75,18 @@ angular.module('timegrouperApp')
             wireshark: true
         };
 
+        $scope.appNamesHighlight = {
+            chrome: true,
+            firefox: true,
+            acroread: true,
+            thunderbird: true,
+            flashplayer: true,
+            quicktime: true,
+            msword: true,
+            opera: true,
+            safari: true,
+            wireshark: true
+        };
 
         $scope.updateMechanisms = [{
             label: 'Manual Update',
@@ -203,6 +215,7 @@ angular.module('timegrouperApp')
                         });
 
                         $scope.summaryOrderList = namesList;
+                        $scope.labelinfo = originalLabel;
 
                     } else if (data.length === 2) {
 
@@ -237,6 +250,8 @@ angular.module('timegrouperApp')
 
                         $scope.noSummary = true;
 
+                        $scope.labelinfo = summaryMatLabel;
+
 
                     }
                 })
@@ -252,12 +267,18 @@ angular.module('timegrouperApp')
         $scope.orders = ['name', 'index', 'count', 'group'];
 
         var patchData;
+        $scope.currentbrush = 0;
 
         var updatePatches = function() {
 
             var url = 'https://lit-hollows-6344.herokuapp.com/getPatches';
 
             console.log($scope.selectedNames);
+
+            if ($scope.selectedNames.length > 36) {
+                alert('You selected too many time lines series.  Would you please select fewer? ');
+                return;
+            }
 
             $http.post(url, {
                     patchId: $scope.selectedNames
@@ -284,15 +305,33 @@ angular.module('timegrouperApp')
                                     };
                                 });
 
+                                var patchProp = $scope.labelinfo.filter(function(d) {
+                                    return d.name === k;
+                                })[0];
+
                                 patchData.push({
                                     key: k,
-                                    values: timeSeries
+                                    values: timeSeries,
+                                    app: patchProp.app,
+                                    exploitable: patchProp.exploitable,
+                                    updateMech: patchProp.updateMech
                                 });
                             }
                         }
                     }
 
-                    $scope.lineData = patchData;
+                    if ($scope.currentbrush === 0) {
+
+                        $scope.lineData1 = patchData;
+                        $scope.currentbrush = 1;
+
+                    } else if ($scope.currentbrush === 1) {
+
+                        $scope.lineData2 = patchData;
+                        $scope.currentbrush = 0;
+                    }
+
+
                     $scope.showTimeSeries = true;
 
                     console.log(patchData);
@@ -313,12 +352,31 @@ angular.module('timegrouperApp')
             chart: {
                 type: 'lineWithFocusChart',
                 height: 450,
+                width:720,
                 margin: {
                     top: 20,
                     right: 20,
                     bottom: 60,
                     left: 40
                 },
+                tooltipContent: function(key, x, y, e, graph) {
+                    // console.log(e);
+                    // console.log(graph);
+                    var patchProp = $scope.labelinfo.filter(function(d) {
+                        return d.name === key;
+                    })[0];
+                    return '<h3>' + key + '</h3>' +
+                        '<h4> UpdateMech: ' + patchProp.updateMech + '</h4>' +
+
+                        '<h4> exploitable: ' + patchProp.exploitable + '</h4>' +
+                        '<p>' + y + ' at ' + x + '</p>';
+
+                },
+
+                useInteractiveGuideline: true,
+                clipVoronoi: false,
+                useVoronoi: false,
+
                 transitionDuration: 500,
                 xAxis: {
                     axisLabel: 'Date since deployed',
@@ -348,7 +406,8 @@ angular.module('timegrouperApp')
         };
 
 
-        $scope.lineData = [];
+        $scope.lineData1 = [];
+        $scope.lineData2 = [];
 
         $scope.$watch(function() {
             return $scope.selectedNames;
@@ -411,7 +470,11 @@ angular.module('timegrouperApp')
                 }
             });
 
-            $scope.lineData = patchData.filter(function(d) {
+            $scope.lineData1 = patchData.filter(function(d) {
+                return filteredNames.indexOf(d.key) !== -1;
+            });
+
+            $scope.lineData2 = patchData.filter(function(d) {
                 return filteredNames.indexOf(d.key) !== -1;
             });
 
@@ -494,7 +557,7 @@ angular.module('timegrouperApp')
 
         }, true);
 
-        $scope.selectAllAppNames = function () {
+        $scope.selectAllAppNames = function() {
             $scope.appNames = {
                 chrome: true,
                 firefox: true,
@@ -524,6 +587,36 @@ angular.module('timegrouperApp')
             };
         };
 
+        $scope.selectAllAppNamesHighlight = function() {
+            $scope.appNamesHighlight = {
+                chrome: true,
+                firefox: true,
+                acroread: true,
+                thunderbird: true,
+                flashplayer: true,
+                quicktime: true,
+                msword: true,
+                opera: true,
+                safari: true,
+                wireshark: true
+            };
+        };
+
+        $scope.deselectAllAppNamesHighlight = function() {
+            $scope.appNamesHighlight = {
+                chrome: false,
+                firefox: false,
+                acroread: false,
+                thunderbird: false,
+                flashplayer: false,
+                quicktime: false,
+                msword: false,
+                opera: false,
+                safari: false,
+                wireshark: false
+            };
+        };
+
         $scope.selectAllUpdateMechanisms = function() {
 
             $scope.updateMechanisms.forEach(function(d) {
@@ -538,7 +631,7 @@ angular.module('timegrouperApp')
             });
         };
 
-         $scope.selectAllUpdateMechanismsTimeSeries = function() {
+        $scope.selectAllUpdateMechanismsTimeSeries = function() {
 
             $scope.updateMechanismsForTimeSeries.forEach(function(d) {
                 d.selected = true;
