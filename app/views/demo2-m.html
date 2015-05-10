@@ -1,6 +1,10 @@
 <style type="text/css">
 	.container {
+		width: 100%;
 		max-width: 10000px !important;
+	}
+	.divCheckboxes label {
+		display: block;
 	}
 	#divContainer {
 		margin: 0xp auto;
@@ -13,6 +17,10 @@
 	
 	.center {
 		text-align: center;	
+	}
+	
+	.hide {
+		display: none;
 	}
 	
 	.linkDividers {
@@ -69,7 +77,6 @@
 	}
 	
 	#divCharts {
-		border: 1px solid #000;
 		margin-left: 30%;
 		min-height: 500px;
 		padding: 0px 10px 10px 10px;
@@ -81,10 +88,21 @@
 		padding: 100px 10px 10px 10px;
 	}
 </style>
-
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+
+<script type="text/javascript">
+	
+	function showToolTip(message) {
+		$( "#helpDialog" ).dialog();
+		$("#helpDialog").text(message);
+	}
+</script>
 
 <div id="divContainer">
+
+<div id="helpDialog" title="Tool Tip" class="hide">This is a tool tip</div>
 
 <div id="divAbout">
 <h1 id="projectTitle">Time Grouper</h1>
@@ -130,16 +148,21 @@
     	<tr>
         	<td rowspan="2">
             	<strong>Applications</strong>:<br />
-				<a href="" class="btn btn-link btn-default" ng-click="selectAllAppNames()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllAppNames()">None</a><br /><br />
-                <label ng-repeat='(appName,enabled) in appNames'>
-                    <input type="checkbox" ng-model='appNames[appName]' /> {{appName}}
-                </label>
+				<a href="" class="btn btn-link btn-default" ng-click="selectAllAppNames()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllAppNames()">None</a><br />
+                <div class="divCheckboxes">
+                    <label ng-repeat='(appName,enabled) in appNames'>
+                        <input type="checkbox" ng-model='appNames[appName]' /> {{appName}}
+                    </label>
+                </div>
             </td>
         	<td>
             	<strong>Update Mechanism</strong>:<br />
-				<a href="" class="btn btn-link btn-default" ng-click="selectAllUpdateMechanisms()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllUpdateMechanisms()">None</a><br /><br /><label ng-repeat='updateMechanism in updateMechanisms'>
-                    <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
-                </label>
+				<a href="" class="btn btn-link btn-default" ng-click="selectAllUpdateMechanisms()">All</a> | <a href="" class="btn btn-link btn-default" ng-click="deselectAllUpdateMechanisms()">None</a><br />
+                <div class="divCheckboxes">
+                    <label ng-repeat='updateMechanism in updateMechanisms'>
+                        <input type="checkbox" ng-model='updateMechanism.selected' /> {{updateMechanism.label}}
+                    </label>
+                </div>
             </td>
         </tr>
         <tr>
@@ -153,7 +176,7 @@
     <br/>
     
     <button ng-click="loadData()" class="button">
-        Get Similarity Data and Generate Similarity Matrix
+        Get Similarity Data and Generate Summary Matrix
     </button>
 </div><!-- end divDataFilters -->
 </div><!-- end divDataFiltersAndAbout -->
@@ -162,7 +185,7 @@
 <div id="divCharts">
 <h3>
 2. Summary Matrix 
-<img src="images/help.png" alt="summary matrix tooltip" title="This summary matrix shows an overview of the similarity matrix. Select a region of interest to generate the detailed similarity matrix and proceed to step 3." />
+<img id="imgHelpSummary" src="images/help.png" alt="summary matrix tooltip" onclick="showToolTip('The summary matrix shows an overview of the similarity matrix. Select a region of interest to generate the detailed similarity matrix and proceed to step 3.');" />
 </h3>
 
 <div summarymatrix class="overview" similarity="summaryMatrix" orderlist="summaryOrderList" selectednames="selectedGroups" myorder='summaryOrder' selectedrange='summaryRange'></div>
@@ -172,7 +195,7 @@
 
 <h3>
 3. Similarity Matrix 
-<img src="images/help.png" alt="similarity matrix tooltip" title="This similarity matrix shows similarities between pairs of patches. Select a region of interest to generate the time series chart and proceed to step 4." />
+<img src="images/help.png" alt="similarity matrix tooltip" onclick="showToolTip('The similarity matrix shows similarities between pairs of patches. Select a region of interest to generate the time series chart and proceed to step 4.');" />
 </h3>
 {{currentbrush}}
 <div similaritymatrix class="overview" similarity="simMatrix" orderlist="orderList" selectednames="selectedNames" myorder='myorder' highlight='appNamesHighlight' labelinfo="labelinfo" currentbrush='currentbrush'></div>
